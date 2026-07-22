@@ -8,8 +8,8 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
 <style>
 :root{
@@ -339,27 +339,46 @@ section.block + section.block{border-top:1px solid var(--line);}
   -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite:xor; mask-composite:exclude;
   animation:sweep 5s linear infinite;
+  pointer-events: none;
 }
 @keyframes sweep{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
 .contact-box h2{font-family:var(--serif); font-style:italic; font-weight:500; font-size:clamp(1.6rem,4vw,2.1rem); margin-bottom:16px;}
 .contact-box p{color:var(--ink-dim); max-width:440px; margin:0 auto 36px; font-size:.95rem; line-height:1.75;}
-.contact-links{display:flex; justify-content:center; flex-wrap:wrap; gap:12px; margin-bottom:32px;}
-.contact-links a{
-  font-size:.86rem; font-weight:500; padding:12px 22px; border-radius:3px;
-  display:inline-flex; align-items:center; gap:8px; transition:transform .25s var(--ease), border-color .25s;
+.contact-links {
+  display: flex;
+  gap: 16px; /* Воздушный отступ между иконками */
+  justify-content: center;
+  align-items: center;
 }
-.cl-a{border:1px solid var(--line-2); color:var(--ink-dim);}
-.cl-a:hover{border-color:var(--green-br); color:var(--ink); transform:translateY(-1px);}
-.cl-b{background:var(--green); border:1px solid var(--green-2); color:var(--ink);}
-.cl-b:hover{background:var(--green-2); transform:translateY(-1px);}
+
+.social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  
+  /* Молочный цвет и отсутствие фона/рамок */
+  color: #F2F2F2; 
+  background: transparent;
+  border: none;
+  outline: none;
+  
+  /* Плавность анимации */
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.social-icon i {
+  font-size: 1.5rem; /* Оптимальный размер иконки */
+}
+
+/* Эффект при наведении: становится чисто белым и чуть всплывает */
+.social-icon:hover {
+  color: #FFFFFF;
+  transform: translateY(-3px);
+}
+
 .avail{display:inline-flex; align-items:center; gap:9px; font-family:var(--mono); font-size:.78rem; color:var(--ink-faint);}
-.fa-brands {
-    font-size: 1.2em;
-    color: white;
-    height: 25px;
-    width: 25px;
-    background-color: white;
-}
+
 /* ── footer ──────────────────────────────────────────────*/
 .foot{padding:36px 0; text-align:center; color:var(--ink-faint); font-size:.78rem; font-family:var(--mono);}
 </style>
@@ -578,17 +597,17 @@ section.block + section.block{border-top:1px solid var(--line);}
         <h2>Давайте развивать AI вместе</h2>
         <p>Рассматриваю позиции AI Engineer, LLM Engineer, Prompt Engineer.
         Удалённо или гибридно.</p>
-        <div class="contact-links" style="display: flex; gap: 12px; justify-content: center; align-items: center;">
-          <a class="cl-b" href="https://github.com/byzindim" target="_blank" rel="noopener noreferrer" aria-label="GitHub Профиль" style="text-decoration: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 8px;">
-            <i class="fa-brands fa-github" style="font-size: 1.2em;"></i>
-          </a>
-          <a class="cl-b" href="mailto:luckydimbyzin@gmail.com" aria-label="Написать на почту" style="text-decoration: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 8px;">
-            <i class="fa-solid fa-envelope" style="font-size: 1.2em;"></i>
-          </a>
-          <a class="cl-b" href="https://t.me/dimbyzin" target="_blank" rel="noopener noreferrer" aria-label="Telegram Профиль" style="text-decoration: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 8px;">
-            <i class="fa-brands fa-telegram" style="font-size: 1.2em;"></i>
-          </a>
-        </div>
+<div class="contact-links">
+  <a class="social-icon" href="https://github.com/byzindim" target="_blank" rel="noopener noreferrer" aria-label="GitHub Профиль">
+    <i class="fa-brands fa-github"></i>
+  </a>
+  <a class="social-icon" href="tel:+79134673901" aria-label="Позвонить">
+    <i class="fa-solid fa-phone"></i>
+  </a>
+  <a class="social-icon" href="https://t.me/dimbyzin" target="_blank" rel="noopener noreferrer" aria-label="Telegram Профиль">
+    <i class="fa-brands fa-telegram"></i>
+  </a>
+</div>
       </div>
     </div>
   </section>
