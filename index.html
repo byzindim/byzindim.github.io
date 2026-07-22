@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dim Byzin — AI Engineer</title>
+<meta name="description" content="AI-инженер: LLM-приложения, RAG-системы, агенты и автоматизация на Python." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+:root{
+  --bg:        #0a0b09;
+  --bg-raised: #101210;
+  --ink:       #f1ede1;
+  --ink-dim:   #a3a196;
+  --ink-faint: #625f54;
+  --line:      rgba(241,237,225,0.09);
+  --line-2:    rgba(241,237,225,0.16);
+  --green:     #33503b;
+  --green-2:   #4c7256;
+  --green-br:  #7fa989;
+  --glow-a:    rgba(127,169,137,0.16);
+  --serif:     'Fraunces', serif;
+  --sans:      'Inter', sans-serif;
+  --mono:      'IBM Plex Mono', monospace;
+  --ease:      cubic-bezier(.16,.8,.24,1);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--sans); font-size:16px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none;}
+ul{list-style:none;}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;}
+
+::selection{background:var(--green);color:var(--ink);}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--ink-faint);border-radius:3px;}
+
+/* faint grain / vignette */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 900px 500px at 50% -10%, rgba(76,114,86,0.10), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 100%, rgba(76,114,86,0.06), transparent 55%);
+}
+.glow{
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background: radial-gradient(420px circle at var(--gx,50%) var(--gy,30%), var(--glow-a), transparent 65%);
+  opacity:0; transition:opacity .5s ease;
+}
+@media (hover:hover) and (pointer:fine){ .glow{opacity:1;} }
+
+.wrap{max-width:760px;margin:0 auto;padding:0 28px;position:relative;z-index:1;}
+
+/* ── top bar ─────────────────────────────────────────── */
+.bar{
+  position:fixed; top:0; left:0; right:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between;
+  height:64px; padding:0 max(28px, 3vw);
+  background:rgba(10,11,9,0.72); backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.mark{font-family:var(--serif); font-size:1.25rem; font-style:italic; font-weight:500;}
+.menu{display:flex; gap:36px;}
+.menu a{font-size:.82rem; color:var(--ink-dim); letter-spacing:.02em; position:relative; padding-bottom:2px;}
+.menu a::after{content:'';position:absolute;left:0;right:100%;bottom:-2px;height:1px;background:var(--green-br);transition:right .35s var(--ease);}
+.menu a:hover{color:var(--ink);}
+.menu a:hover::after{right:0;}
+.bar-cta{
+  font-size:.78rem; font-family:var(--mono); color:var(--ink-dim);
+  border:1px solid var(--line-2); padding:7px 16px; border-radius:3px;
+  transition:border-color .25s, color .25s;
+  white-space:nowrap;
+}
+.bar-cta:hover{border-color:var(--green-br); color:var(--green-br);}
+
+.burger{
+  display:none; width:36px; height:36px; align-items:center; justify-content:center;
+  border:1px solid var(--line-2); border-radius:3px; flex-shrink:0;
+}
+.burger span, .burger span::before, .burger span::after{
+  content:''; position:absolute; width:15px; height:1px; background:var(--ink-dim);
+  transition:transform .3s var(--ease), opacity .2s, background .2s;
+}
+.burger span{position:relative; display:block;}
+.burger span::before{top:-5px; left:0;}
+.burger span::after{top:5px; left:0;}
+.burger.open span{background:transparent;}
+.burger.open span::before{top:0; transform:rotate(45deg); background:var(--green-br);}
+.burger.open span::after{top:0; transform:rotate(-45deg); background:var(--green-br);}
+
+@media (max-width:1024px){
+  .bar-cta{display:none;}
+  .burger{display:flex;}
+  .menu{
+    position:fixed; top:64px; left:0; right:0; z-index:49;
+    flex-direction:column; gap:0; align-items:stretch;
+    background:rgba(10,11,9,0.98); backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--line);
+    max-height:0; overflow:hidden; opacity:0;
+    transition:max-height .4s var(--ease), opacity .3s;
+  }
+  .menu.open{max-height:340px; opacity:1;}
+  .menu a{padding:18px max(28px,5vw); border-bottom:1px solid var(--line); font-size:1rem;}
+  .menu a::after{display:none;}
+}
+@media (max-width:420px){
+  .bar{padding:0 18px;}
+  .mark{font-size:1.1rem;}
+}
+
+/* ── index rail (signature element) ─────────────────────*/
+.rail{
+  position:fixed; left:40px; top:50%; transform:translateY(-50%); z-index:40;
+  display:flex; flex-direction:column; align-items:center; gap:0;
+}
+.rail-line{width:1px; height:120px; background:linear-gradient(var(--line-2), transparent); margin-bottom:-4px;}
+.rail-dot{
+  position:relative; width:30px; height:30px; display:flex; align-items:center; justify-content:center;
+}
+.rail-dot span{
+  font-family:var(--mono); font-size:.62rem; color:var(--ink-faint);
+  width:7px; height:7px; border-radius:50%; background:var(--ink-faint);
+  display:block; text-indent:-999px; overflow:hidden;
+  transition:background .3s, box-shadow .3s;
+}
+.rail-dot::before{
+  content:attr(data-label);
+  position:absolute; left:24px; top:50%; transform:translateY(-50%);
+  font-family:var(--mono); font-size:.66rem; color:var(--ink-faint);
+  white-space:nowrap; opacity:0; transition:opacity .25s, transform .25s;
+  pointer-events:none;
+}
+.rail-dot:hover::before{opacity:1; transform:translateY(-50%) translateX(4px);}
+.rail-dot.active span{
+  background:var(--green-br);
+  animation:railPulse 2.6s ease-out infinite;
+}
+.rail-dot.active::before{opacity:.7; color:var(--ink-dim);}
+@keyframes railPulse{
+  0%{box-shadow:0 0 0 0 rgba(127,169,137,.55);}
+  70%{box-shadow:0 0 0 9px rgba(127,169,137,0);}
+  100%{box-shadow:0 0 0 0 rgba(127,169,137,0);}
+}
+@media (max-width:1180px){ .rail{display:none;} }
+
+/* ── shared: pulse dot / kicker / btn ────────────────────*/
+.pulse-dot{
+  width:6px; height:6px; border-radius:50%; background:var(--green-br); flex-shrink:0;
+  animation:railPulse 2.6s ease-out infinite;
+}
+.kicker{
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--green-br); margin-bottom:20px; display:flex; align-items:center; gap:10px;
+}
+.kicker::after{content:'';flex:1; height:1px; background:var(--line-2); max-width:60px;}
+
+.btn{
+  display:inline-flex; align-items:center; gap:9px;
+  padding:13px 26px; border-radius:3px; font-size:.85rem; font-weight:500;
+  transition:transform .3s var(--ease), box-shadow .3s var(--ease), border-color .3s, background .3s;
+}
+.btn-solid{background:var(--green); border:1px solid var(--green-2); color:var(--ink);}
+.btn-solid:hover{background:var(--green-2); box-shadow:0 0 0 1px var(--green-br), 0 8px 24px -8px rgba(76,114,86,.6); transform:translateY(-1px);}
+.btn-line{border:1px solid var(--line-2); color:var(--ink-dim);}
+.btn-line:hover{border-color:var(--green-br); color:var(--ink); transform:translateY(-1px);}
+
+/* ── reveal ──────────────────────────────────────────── */
+.reveal{opacity:0; transform:translateY(18px); transition:opacity .9s var(--ease), transform .9s var(--ease);}
+.reveal.in{opacity:1; transform:translateY(0);}
+@media (prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none;transition:none;}
+  .pulse-dot,.rail-dot.active span{animation:none;}
+}
+
+/* ── hero ─────────────────────────────────────────────── */
+.hero{min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding:110px 28px 60px;}
+.eyebrow{
+  display:inline-flex; align-items:center; gap:10px;
+  font-family:var(--mono); font-size:.78rem; color:var(--ink-dim);
+  border:1px solid var(--line-2); border-radius:100px; padding:7px 16px 7px 12px;
+  width:fit-content; margin-bottom:34px;
+}
+.hero-name{
+  font-family:var(--serif); font-weight:500; font-style:italic;
+  font-size:clamp(2rem, 9vw, 2rem); line-height:.98; letter-spacing:-.01em;
+  margin-bottom:6px;
+}
+.hero-name em{color:var(--green-br); font-style:italic;}
+.hero-role{
+  font-family:var(--mono); font-size:clamp(.95rem,2vw,1.1rem); color:var(--ink-dim);
+  margin:18px 0 30px; min-height:1.4em;
+}
+.hero-role .caret{display:inline-block;width:2px;height:1em;background:var(--green-br);vertical-align:-2px;margin-left:2px;animation:blink 1s step-end infinite;}
+@keyframes blink{50%{opacity:0;}}
+.hero-lede{max-width:520px; color:var(--ink-dim); font-size:1rem; line-height:1.8; margin-bottom:40px;}
+.hero-lede strong{color:var(--ink); font-weight:600;}
+.hero-actions{display:flex; gap:14px; flex-wrap:wrap;}
+
+/* ── strip (stats) ───────────────────────────────────────*/
+.strip{border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:36px 0;}
+.strip-row{display:grid; grid-template-columns:repeat(2,1fr);}
+.strip-item{padding:0 20px; border-left:1px solid var(--line);}
+.strip-item:first-child{border-left:none; padding-left:0;}
+.strip-num{display:block; font-family:var(--serif); font-style:italic; font-size:2.1rem; color:var(--ink); margin-bottom:4px;}
+.strip-label{font-size:.78rem; color:var(--ink-faint);}
+@media (max-width:640px){ .strip-row{grid-template-columns:repeat(2,1fr); row-gap:24px;} .strip-item:nth-child(3){border-left:none;} }
+
+/* ── section spacing ────────────────────────────────────*/
+section.block{padding:120px 0;}
+section.block + section.block{border-top:1px solid var(--line);}
+@media (max-width:640px){
+  section.block{padding:76px 0;}
+  .hero{padding-top:100px; min-height:auto; padding-bottom:64px;}
+}
+
+/* ── profile ─────────────────────────────────────────────*/
+.profile-grid{display:grid; grid-template-columns:1.15fr .85fr; gap:64px; align-items:start;}
+.profile-text p{color:var(--ink-dim); line-height:1.85; margin-bottom:18px; font-size:.98rem;}
+.profile-text p strong{color:var(--ink); font-weight:600;}
+.profile-text h2{font-family:var(--serif); font-style:italic; font-weight:500; font-size:1.9rem; margin-bottom:22px; line-height:1.25;}
+
+.dossier{
+  position:relative; border:1px solid var(--line); border-radius:4px; padding:30px 28px;
+  background:var(--bg-raised);
+}
+.dossier::before,.dossier::after{
+  content:''; position:absolute; width:14px; height:14px; border:1px solid var(--green-br);
+  animation:corner 3.6s ease-in-out infinite;
+}
+.dossier::before{top:-1px; left:-1px; border-right:none; border-bottom:none;}
+.dossier::after{bottom:-1px; right:-1px; border-left:none; border-top:none;}
+@keyframes corner{0%,100%{opacity:.25;}50%{opacity:.85;}}
+.dossier-row{display:flex; justify-content:space-between; padding:26px 0; border-bottom:1px solid var(--line); font-size:.85rem;}
+.dossier-row:last-child{border-bottom:none;}
+.dossier-k{color:var(--ink-faint); font-family:var(--mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; flex-shrink:0; padding-right:16px;}
+.dossier-v{color:var(--ink-dim); text-align:right;}
+
+@media (max-width:900px){
+  .profile-grid{grid-template-columns:1fr; gap:36px;}
+  .dossier{max-width:440px;}
+}
+@media (max-width:480px){
+  .dossier{padding:24px 20px;}
+  .dossier-row{font-size:.82rem;}
+}
+
+/* ── practice / skills ───────────────────────────────────*/
+.practice-list{border-top:1px solid var(--line);}
+.practice-row{
+  display:grid; grid-template-columns:190px 1fr; gap:24px;
+  padding:22px 0; border-bottom:1px solid var(--line);
+}
+.practice-label{font-family:var(--mono); font-size:.78rem; color:var(--ink-faint); padding-top:3px; text-transform:uppercase; letter-spacing:.05em;}
+.practice-items{display:flex; flex-wrap:wrap; gap:8px 22px;}
+.practice-items span{font-size:.92rem; color:var(--ink-dim); position:relative; padding-left:0; transition:color .25s;}
+.practice-items span:hover{color:var(--ink);}
+@media (max-width:640px){ .practice-row{grid-template-columns:1fr; gap:8px;} }
+
+/* ── work / projects ─────────────────────────────────────*/
+.work-list{border-top:1px solid var(--line);}
+.work-row{border-bottom:1px solid var(--line); margin-bottom: 100px;}
+.work-row summary{
+  list-style:none; cursor:pointer; padding:26px 0; display:flex; align-items:center; gap:22px;
+  transition:padding-left .3s var(--ease);
+}
+.work-row summary::-webkit-details-marker{display:none;}
+.work-row summary:hover{padding-left:8px;}
+.work-idx{font-family:var(--mono); font-size:.78rem; color:var(--ink-faint); width:26px; flex-shrink:0;}
+.work-heading{flex:1; min-width:0;}
+.work-title{font-family:var(--serif); font-size:1.18rem; font-weight:500; margin-bottom:4px;}
+.work-tag{font-family:var(--mono); font-size:.68rem; color:var(--green-br); text-transform:uppercase; letter-spacing:.08em;}
+.work-line{color:var(--ink-faint); font-size:.85rem; margin-top:6px; max-width:520px;}
+.work-chevron{
+  width:22px; height:22px; border:1px solid var(--line-2); border-radius:50%;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  transition:transform .35s var(--ease), border-color .3s;
+}
+.work-row[open] .work-chevron{transform:rotate(45deg); border-color:var(--green-br);}
+.work-chevron svg{width:10px;height:10px;}
+.work-body{padding:0 0 34px 48px; animation:openIn .4s var(--ease);}
+@keyframes openIn{from{opacity:0; transform:translateY(-6px);} to{opacity:1; transform:translateY(0);}}
+.work-highlights{margin-bottom:20px;}
+.work-highlights li{
+  display:flex; gap:10px; color:var(--ink-dim); font-size:.88rem; line-height:1.7; margin-bottom:8px;
+}
+.work-highlights li::before{content:'—'; color:var(--green-br); flex-shrink:0;}
+.work-highlights li strong{color:var(--ink); font-weight:600;}
+.work-tech{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;}
+.work-tech span{
+  font-family:var(--mono); font-size:.7rem; padding:4px 10px; border:1px solid var(--line-2);
+  border-radius:3px; color:var(--ink-faint);
+}
+.work-links{display:flex; gap:12px;}
+.work-links a{
+  font-family:var(--mono); font-size:.78rem; display:inline-flex; align-items:center; gap:7px;
+  padding:9px 16px; border:1px solid var(--line-2); border-radius:3px; color:var(--ink-dim);
+  transition:border-color .25s, color .25s;
+}
+.work-links a:hover{border-color:var(--green-br); color:var(--ink);}
+.work-links svg{width:13px;height:13px;}
+
+.work-code{
+  margin-top:6px; margin-bottom:26px; background:var(--bg-raised); border:1px solid var(--line);
+  border-radius:4px; padding:22px 24px; font-family:var(--mono); font-size:.78rem; line-height:1.7;
+  overflow-x:auto;
+}
+.wc-cm{color:var(--ink-faint);}
+.wc-kw{color:var(--green-br);}
+.wc-fn{color:#c9b78a;}
+.wc-str{color:#93ab8f;}
+.wc-num{color:#b48a6a;}
+
+@media (max-width:640px){
+  .work-row summary{gap:14px;}
+  .work-title{font-size:1.05rem;}
+  .work-body{padding-left:0;}
+}
+
+/* ── contact ─────────────────────────────────────────────*/
+.contact-box{
+  position:relative; border:1px solid var(--line); border-radius:6px;
+  padding:64px 44px; text-align:center; background:var(--bg-raised); overflow:hidden;
+}
+.contact-box::before{
+  content:''; position:absolute; inset:-1px; border-radius:6px; padding:1px;
+  background:linear-gradient(120deg, transparent, var(--glow-a), transparent);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude;
+  animation:sweep 5s linear infinite;
+}
+@keyframes sweep{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+.contact-box h2{font-family:var(--serif); font-style:italic; font-weight:500; font-size:clamp(1.6rem,4vw,2.1rem); margin-bottom:16px;}
+.contact-box p{color:var(--ink-dim); max-width:440px; margin:0 auto 36px; font-size:.95rem; line-height:1.75;}
+.contact-links{display:flex; justify-content:center; flex-wrap:wrap; gap:12px; margin-bottom:32px;}
+.contact-links a{
+  font-size:.86rem; font-weight:500; padding:12px 22px; border-radius:3px;
+  display:inline-flex; align-items:center; gap:8px; transition:transform .25s var(--ease), border-color .25s;
+}
+.cl-a{border:1px solid var(--line-2); color:var(--ink-dim);}
+.cl-a:hover{border-color:var(--green-br); color:var(--ink); transform:translateY(-1px);}
+.cl-b{background:var(--green); border:1px solid var(--green-2); color:var(--ink);}
+.cl-b:hover{background:var(--green-2); transform:translateY(-1px);}
+.avail{display:inline-flex; align-items:center; gap:9px; font-family:var(--mono); font-size:.78rem; color:var(--ink-faint);}
+.fa-brands {
+    font-size: 1.2em;
+    color: white;
+    height: 25px;
+    width: 25px;
+    background-color: white;
+}
+/* ── footer ──────────────────────────────────────────────*/
+.foot{padding:36px 0; text-align:center; color:var(--ink-faint); font-size:.78rem; font-family:var(--mono);}
+</style>
+</head>
+<body>
+
+<div class="glow" id="glow"></div>
+
+<header class="bar">
+  <a class="mark" href="#top">dimbyzin</a>
+  <nav class="menu">
+    <a href="#profile">Профиль</a>
+    <a href="#practice">Инструменты</a>
+    <a href="#work">Работы</a>
+    <a href="#contact">Контакт</a>
+  </nav>
+  <a class="bar-cta" href="#contact">Написать →</a>
+  <button class="burger" id="burger" aria-label="Меню" aria-expanded="false">
+    <span></span>
+  </button>
+</header>
+
+<aside class="rail">
+  <div class="rail-line"></div>
+  <button class="rail-dot" data-target="profile" data-label="Профиль"><span>I</span></button>
+  <button class="rail-dot" data-target="practice" data-label="Инструменты"><span>II</span></button>
+  <button class="rail-dot" data-target="work" data-label="Работы"><span>III</span></button>
+  <button class="rail-dot" data-target="contact" data-label="Контакт"><span>IV</span></button>
+</aside>
+
+<main id="top">
+
+  <section class="hero wrap">
+    <p class="eyebrow"><span class="pulse-dot"></span>Открыт к предложениям — июль 2026</p>
+    <h1 class="hero-name">Dim <em>Byzin.</em></h1>
+    <p class="hero-role"><span id="role"></span><span class="caret"></span></p>
+    <p class="hero-lede">
+      Разрабатываю <strong>LLM-приложения, RAG-платформы и мульти-агентные системы</strong> на Python — от
+      идеи до рабочего продукта. Пять открытых полномасштабных проектов на GitHub: гибридный поиск
+      с BM25, бот с blended ML+LLM оценкой, Mini App.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-solid" href="#work">Смотреть работы</a>
+      <a class="btn btn-line" href="https://github.com/byzindim" target="_blank">GitHub профиль</a>
+    </div>
+  </section>
+  <section class="block" id="profile">
+    <div class="wrap">
+      <p class="kicker reveal">I — Профиль</p>
+      <div class="profile-grid reveal">
+        <div class="profile-text">
+          <h3>Разрабатываю AI-сервисы<br/>от идеи до рабочего продукта</h3>
+          <p>AI Engineer / Prompt Engineer / LLM Developer с фокусом на <strong>RAG-платформы и мульти-агентные системы</strong>.</p>
+          <p>Разрабатываю  полномасштабные AI-проекты: RAG-анализатор договоров для юридического отдела, гибридный поиск с BM25 и RRF,
+          FAQ-ассистент для hr-департамента + FastAPI.</p>
+          <p>3 года в <strong>управлении</strong> ИТ-проектами, 2 года в <strong>разработке</strong> web-сервисов.</p>
+        </div>
+        <div class="dossier">
+          <div class="dossier-row"><span class="dossier-k">Фокус</span><span class="dossier-v">LLM · RAG · агенты</span></div>
+          <div class="dossier-row"><span class="dossier-k">Язык</span><span class="dossier-v">Python</span></div>
+          <div class="dossier-row"><span class="dossier-k">Опыт</span><span class="dossier-v">Аналитика, оценка проектов, разработка, управление проектами</span></div>
+          <div class="dossier-row"><span class="dossier-k">Формат</span><span class="dossier-v">удалённо / гибрид</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="practice">
+    <div class="wrap">
+      <p class="kicker reveal">II — Инструменты</p>
+      <div class="reveal">
+        <div class="practice-list">
+          <div class="practice-row">
+            <span class="practice-label">LLM / AI</span>
+            <div class="practice-items">
+              <span>Prompt Engineering</span><span>RAG</span><span>AI Agents</span>
+              <span>Few-shot</span><span>Structured Output</span><span>LLM-as-a-Judge</span>
+            </div>
+          </div>
+          <div class="practice-row">
+            <span class="practice-label">RAG / Эмбеддинги</span>
+            <div class="practice-items">
+              <span>FAISS</span><span>ChromaDB</span><span>BM25</span><span>RRF</span>
+              <span>Cross-Encoder</span><span>multilingual-e5-small</span><span>bge-m3</span><span>pgvector</span>
+            </div>
+          </div>
+          <div class="practice-row">
+            <span class="practice-label">Python / Backend</span>
+            <div class="practice-items">
+              <span>Python 3.11+</span><span>FastAPI</span><span>asyncio</span><span>httpx</span>
+              <span>Pydantic V2</span><span>PyMuPDF</span>
+            </div>
+          </div>
+          <div class="practice-row">
+            <span class="practice-label">Оркестрация</span>
+            <div class="practice-items">
+              <span>LangGraph</span><span>LangChain</span><span>LlamaIndex</span>
+              <span>n8n</span><span>Pipelines</span>
+            </div>
+          </div>
+          <div class="practice-row">
+            <span class="practice-label">LLM-провайдеры</span>
+            <div class="practice-items">
+              <span>Ollama (Qwen 2.5)</span><span>OpenAI API</span><span>GigaChat</span><span>YandexGPT</span>
+            </div>
+          </div>
+          <div class="practice-row">
+            <span class="practice-label">Frontend / UI</span>
+            <div class="practice-items">
+              <span>React</span><span>Streamlit</span>
+            </div>
+          </div>
+          <div class="practice-row">
+            <span class="practice-label">Инфраструктура / LLMOps</span>
+            <div class="practice-items">
+              <span>Git</span><span>Docker</span><span>PostgreSQL</span>
+              <span>REST API</span><span>Langfuse</span><span>Ragas</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="work">
+    <div class="wrap">
+      <p class="kicker reveal">III — Работы</p>
+
+      <div class="work-list reveal">
+
+        <details class="work-row" open>
+          <summary>
+            <span class="work-idx">01</span>
+            <div class="work-heading">
+              <span class="work-tag">Production-Ready · RAG & Agents</span>
+              <div class="work-title">Корпоративный FAQ-LLM-ассистент</div>
+              <p class="work-line">Production-ready RAG-система с детерминированным LangGraph-агентом и гибридным поиском, обеспечившая 100% точность на 211 вопросах.</p>
+            </div>
+            <span class="work-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+          </summary>
+          <div class="work-body">
+            <ul class="work-highlights">
+              <li><strong>Методы:</strong> Markdown-aware чанкинг, эмбеддинги bge-m3, Reciprocal Rank Fusion (RRF), few-shot промптинг и LLM-as-a-Judge.</li>
+              <li><strong>Результат:</strong> Наивный RAG (35% точности) заменен на гибридный поиск, что дало 100% точности (Hit Rate@5 = 1.0, MRR = 1.0) на датасете из 211 вопросов.</li>
+              <li><strong>Архитектура:</strong> Детерминированный FSM-роутер на LangGraph с паттерном short-circuiting (снижение latency на 70% для chitchat/out-of-scope запросов).</li>
+              <li><strong>Надежность:</strong> Паттерн Defensive Programming (format="json" + Pydantic V2 + json_repair + Retry with Feedback) для 100% валидности вывода.</li>
+              <li><strong>LLMOps&DevOps:</strong> Waterfall-анализ задержек через Langfuse, graceful degradation при сбоях, упаковка в Docker (multi-stage build).</li>
+            </ul>
+            <div class="work-code">
+              <div class="wc-cm"># LangGraph: детерминированный FSM-роутинг с short-circuiting</div>
+              <div><span class="wc-kw">def</span> <span class="wc-fn">route_decision</span>(state: AgentState) -> <span class="wc-kw">str</span>:</div>
+              <div>&nbsp;&nbsp;intent = state[<span class="wc-str">"intent"</span>]</div>
+              <div>&nbsp;&nbsp;<span class="wc-kw">if</span> intent == <span class="wc-str">"faq"</span>: <span class="wc-kw">return</span> <span class="wc-str">"retrieve"</span> &nbsp;&nbsp;<span class="wc-cm"># Полный RAG-цикл</span></div>
+              <div>&nbsp;&nbsp;<span class="wc-kw">if</span> intent == <span class="wc-str">"chitchat"</span>: <span class="wc-kw">return</span> <span class="wc-str">"chitchat"</span> <span class="wc-cm"># Short-circuit (быстрый ответ)</span></div>
+              <div>&nbsp;&nbsp;<span class="wc-kw">return</span> <span class="wc-str">"fallback"</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="wc-cm"># Защита от галлюцинаций</span></div>
+            </div>
+            <div class="work-tech">
+              <span>Python</span><span>FastAPI</span><span>LangGraph</span>
+              <span>Ollama (Qwen 2.5)</span><span>bge-m3</span><span>FAISS</span><span>BM25</span><span>RRF</span><span>Pydantic V2</span><span>Langfuse</span><span>Docker</span>
+            </div>
+            <div class="work-links">
+              <a href="https://github.com/byzindim/FAQ-LLM-assistant" target="_blank">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+                Репозиторий
+              </a>
+            </div>
+          </div>
+        </details>
+
+        <details class="work-row" open>
+          <summary>
+            <span class="work-idx">02</span>
+            <div class="work-heading">
+              <span class="work-tag">Enterprise RAG · Legal Tech · Python</span>
+              <div class="work-title">RAG-анализатор юридических договоров (Contract Analyzer V2)</div>
+              <p class="work-line">Модернизация RAG-пайплайна: рост Context Recall на 310% и Faithfulness на 68% за счет гибридного поиска, переформулирования запросов и строгой валидации вывода без тяжелых фреймворков.</p>
+            </div>
+            <span class="work-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+          </summary>
+          <div class="work-body">
+            <ul class="work-highlights">
+              <li><strong>Проблема:</strong> Базовый RAG давал Recall 0.19 и Faithfulness 0.47 из-за лексического разрыва, галлюцинаций модели и сломанной фильтрации по метаданным (конфликт кириллицы в запросе и латиницы в именах файлов).</li>
+              <li><strong>Результат:</strong> Честный рост метрик на кастомном Ground Truth датасете: Context Recall 0.19 → 0.67, Faithfulness 0.47 → 0.67. Время анализа документов сократилось с часов до минут.</li>
+              <li><strong>Качество:</strong> Написал кастомного LLM-as-a-Judge с Chain of Thought и явной рубрикой, что устранило проблему Prompt Anchoring (бинарного смещения оценок модели).</li>
+              <li><strong>Архитектура:</strong> Внедрил 4-х ступенчатый поиск: Query Rewriting (LLM-синонимы), специализированные эмбеддинги (multilingual-e5-small), Weighted Hybrid Search (FAISS + BM25 + RRF с весами 1.0/0.3) и Cross-Encoder реранкинг.</li>
+              <li><strong>Надежность:</strong> Реализовал кросс-языковой Fuzzy Matching (unidecode + thefuzz) для точной фильтрации документов и алгоритмическую Self-Correction (проверка чисел из ответа на наличие в исходном контексте).</li>
+            </ul>
+            <div class="work-code">
+              <div class="wc-cm"># Self-Correction: алгоритмическая валидация фактов перед отдачей ответа</div>
+              <div><span class="wc-kw">def</span> <span class="wc-fn">validate_grounding</span>(answer: <span class="wc-kw">str</span>, context: <span class="wc-kw">str</span>) -> <span class="wc-kw">str</span>:</div>
+              <div>&nbsp;&nbsp;numbers = re.findall(<span class="wc-str">r'\d+(?:\.\d+)?%?'</span>, answer)</div>
+              <div>&nbsp;&nbsp;<span class="wc-kw">if</span> <span class="wc-kw">any</span>(num <span class="wc-kw">not in</span> context <span class="wc-kw">for</span> num <span class="wc-kw">in</span> numbers):</div>
+              <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="wc-kw">return</span> answer + <span class="wc-str">"\n\n[⚠️ ВНИМАНИЕ: Обнаружены числа, отсутствующие в контексте.]"</span></div>
+              <div>&nbsp;&nbsp;<span class="wc-kw">return</span> answer</div>
+            </div>
+            <div class="work-tech">
+              <span>Python</span><span>FastAPI</span><span>Ollama (Qwen 2.5 14B)</span>
+              <span>multilingual-e5-small</span><span>FAISS</span><span>BM25</span><span>RRF</span><span>Cross-Encoder</span><span>PyMuPDF</span><span>thefuzz</span><span>unidecode</span>
+            </div>
+            <div class="work-links">
+              <a href="https://github.com/byzindim/contract-analyzer-project" target="_blank">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+                Репозиторий
+              </a>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="contact">
+    <div class="wrap">
+      <p class="kicker reveal">IV — Контакт</p>
+      <div class="contact-box reveal">
+        <h2>Давайте развивать AI вместе</h2>
+        <p>Рассматриваю позиции AI Engineer, LLM Engineer, Prompt Engineer.
+        Удалённо или гибридно.</p>
+        <div class="contact-links" style="display: flex; gap: 12px; justify-content: center; align-items: center;">
+          <a class="cl-b" href="https://github.com/byzindim" target="_blank" rel="noopener noreferrer" aria-label="GitHub Профиль" style="text-decoration: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 8px;">
+            <i class="fa-brands fa-github" style="font-size: 1.2em;"></i>
+          </a>
+          <a class="cl-b" href="mailto:luckydimbyzin@gmail.com" aria-label="Написать на почту" style="text-decoration: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 8px;">
+            <i class="fa-solid fa-envelope" style="font-size: 1.2em;"></i>
+          </a>
+          <a class="cl-b" href="https://t.me/dimbyzin" target="_blank" rel="noopener noreferrer" aria-label="Telegram Профиль" style="text-decoration: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 8px;">
+            <i class="fa-brands fa-telegram" style="font-size: 1.2em;"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">© 2026 Dim Byzin</footer>
+
+<script>
+// mobile burger menu
+const burger = document.getElementById('burger');
+const menu = document.querySelector('.menu');
+burger.addEventListener('click', ()=>{
+  const open = menu.classList.toggle('open');
+  burger.classList.toggle('open', open);
+  burger.setAttribute('aria-expanded', open);
+});
+menu.querySelectorAll('a').forEach(a=>{
+  a.addEventListener('click', ()=>{
+    menu.classList.remove('open');
+    burger.classList.remove('open');
+    burger.setAttribute('aria-expanded','false');
+  });
+});
+
+// typed role
+const roles = ['LLM Engineer','AI Application Developer',' RAG Engineer','Prompt Engineer','AI Automation Engineer'];
+let ri=0, ci=0, del=false, hold=0;
+const roleEl = document.getElementById('role');
+function typeLoop(){
+  if(hold>0){hold--; setTimeout(typeLoop,45); return;}
+  const w = roles[ri];
+  if(!del){
+    roleEl.textContent = w.slice(0, ++ci);
+    if(ci===w.length){ del=true; hold=42; }
+    setTimeout(typeLoop, 78);
+  } else {
+    roleEl.textContent = w.slice(0, --ci);
+    if(ci===0){ del=false; ri=(ri+1)%roles.length; }
+    setTimeout(typeLoop, 36);
+  }
+}
+typeLoop();
+
+// scroll reveal
+const revealObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); revealObs.unobserve(e.target); } });
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+
+// rail scrollspy
+const railDots = document.querySelectorAll('.rail-dot');
+const sections = ['profile','practice','work','contact'].map(id=>document.getElementById(id));
+const spyObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      railDots.forEach(d=>d.classList.toggle('active', d.dataset.target===e.target.id));
+    }
+  });
+},{rootMargin:'-45% 0px -45% 0px'});
+sections.forEach(s=>s && spyObs.observe(s));
+
+railDots.forEach(d=>{
+  d.addEventListener('click', ()=>{
+    document.getElementById(d.dataset.target)?.scrollIntoView({behavior:'smooth'});
+  });
+});
+
+// ambient cursor glow
+const glow = document.getElementById('glow');
+let raf=null;
+window.addEventListener('mousemove', e=>{
+  if(raf) return;
+  raf = requestAnimationFrame(()=>{
+    glow.style.setProperty('--gx', e.clientX+'px');
+    glow.style.setProperty('--gy', e.clientY+'px');
+    raf=null;
+  });
+});
+</script>
+</body>
+</html>
