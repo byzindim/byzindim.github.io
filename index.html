@@ -586,6 +586,45 @@ section.block + section.block{border-top:1px solid var(--line);}
             </div>
           </div>
         </details>
+
+        <details class="work-row" open>
+          <summary>
+            <span class="work-idx">03</span>
+            <div class="work-heading">
+              <span class="work-tag">AI Product · HR Tech · Next.js</span>
+              <div class="work-title">HR-система онбординга и адаптации сотрудников</div>
+              <p class="work-line">Платформа адаптации новичков с AI-ассистентом на базе RAG: три роли, персональные маршруты онбординга, геймификация и аналитика рисков — от дашборда сотрудника до governance-очередей администратора.</p>
+            </div>
+            <span class="work-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+          </summary>
+          <div class="work-body">
+            <ul class="work-highlights">
+              <li><strong>AI-ассистент (RAG):</strong> чат-бот отвечает на вопросы новичков по базе знаний с указанием источников; конфиденциальные запросы (hrbp, confidential, private) фильтруются и эскалируются без утечки контента.</li>
+              <li><strong>AI-интерпретация попыток:</strong> автоматическая проверка выполнения задач сотрудником — вердикт ACHIEVED / NOT_ACHIEVED / AMBIGUOUS с confidence %, при этом кадровое решение всегда остаётся за руководителем.</li>
+              <li><strong>Три роли + governance:</strong> Сотрудник (прогресс-кольцо, learning path, streak-геймификация), Руководитель (risk heatmap, pulse sentiment, AI-рекомендации), Администратор (CRUD мастер-данных, согласования, diff-preview, аудит-журнал).</li>
+              <li><strong>Приватность по дизайну:</strong> voluntary-поля профиля с метками видимости (Only me / HR / HR+Manager), private-запросы к HRBP невидимые менеджеру, отложенная публикация обратной связи (2 часа на корректировку).</li>
+              <li><strong>Демо-панель презентера:</strong> переключение сценариев (critical / tails / t-5 / transfer-pending) в реальном времени, ползунок дня 0–90, toggle AI/HRBP с fallback-поведением, сброс состояния в localStorage.</li>
+            </ul>
+            <div class="work-code">
+              <div class="wc-cm">// AI-чат: фильтр конфиденциальных запросов + RAG-поиск по базе знаний</div>
+              <div><span class="wc-kw">const</span> CONFIDENTIAL = <span class="wc-str">/hrbp|confidential|private/i</span>;</div>
+              <div><span class="wc-kw">async function</span> <span class="wc-fn">answer</span>(question: <span class="wc-kw">string</span>) {</div>
+              <div>&nbsp;&nbsp;<span class="wc-kw">if</span> (CONFIDENTIAL.test(question)) <span class="wc-kw">return</span> <span class="wc-fn">escalateToHrbp</span>(); &nbsp;<span class="wc-cm">// без утечки контента</span></div>
+              <div>&nbsp;&nbsp;<span class="wc-kw">return</span> <span class="wc-fn">ragSearch</span>(knowledgeBase, question); <span class="wc-cm">// ответ + источники</span></div>
+              <div>}</div>
+            </div>
+            <div class="work-tech">
+              <span>Next.js 16</span><span>React 19</span><span>TypeScript</span>
+              <span>Tailwind CSS 4</span><span>Radix UI</span><span>Recharts</span><span>Framer Motion</span>
+            </div>
+            <div class="work-links">
+              <a href="https://github.com/byzindim/hr-demo" target="_blank">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+                Репозиторий
+              </a>
+            </div>
+          </div>
+        </details>
       </div>
     </div>
   </section>
